@@ -1,0 +1,240 @@
+// Импорт модуля Sass
+@use 'sass:map';
+@use 'sass:color' as color-module;
+
+// Цветовая схема
+$colors: (
+  primary: #667eea,
+  secondary: #764ba2,
+  success: #4CAF50,
+  danger: #f44336,
+  warning: #ff9800,
+  info: #2196F3,
+  dark: #333,
+  light: #f8f9fa,
+  white: #ffffff,
+  gray: #666,
+  light-gray: #eee
+);
+
+// Получение цвета из карты (используем map.get)
+@function color($key) {
+  @return map.get($colors, $key);
+}
+
+// Затемнение цвета
+@function darken-color($color, $amount: 10%) {
+  @return color-module.scale($color, $lightness: -$amount);
+}
+
+// Осветление цвета
+@function lighten-color($color, $amount: 10%) {
+  @return color-module.scale($color, $lightness: $amount);
+}
+
+// Градиенты
+@mixin gradient-bg($angle: 135deg, $color1: color(primary), $color2: color(secondary)) {
+  background: linear-gradient($angle, $color1 0%, $color2 100%);
+}
+
+// Тени
+@mixin shadow($level: 1) {
+  @if $level == 1 {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  } @else if $level == 2 {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  } @else if $level == 3 {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
+  } @else if $level == 4 {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  } @else if $level == 5 {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Скругления углов
+@mixin border-radius($radius: 8px) {
+  border-radius: $radius;
+}
+
+@mixin border-radius-large($radius: 20px) {
+  border-radius: $radius;
+}
+
+@mixin border-radius-round($radius: 50px) {
+  border-radius: $radius;
+}
+
+// Анимации
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+@mixin transform($transform) {
+  transform: $transform;
+}
+
+// Flexbox миксины
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Размеры колеса (динамические)
+@mixin wheel-size($size: 600px) {
+  --size: clamp(250px, 80vmin, #{$size});
+}
+
+// Текст
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-gradient($gradient: (color(primary), color(secondary))) {
+  background: linear-gradient(to right, $gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Кнопки
+@mixin button-base {
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  @include transition(all, 0.3s);
+  @include border-radius-round;
+  @include shadow(2);
+  
+  &:hover:not(:disabled) {
+    @include transform(translateY(-2px));
+    @include shadow(3);
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  @include gradient-bg;
+  color: color(white);
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: color(danger);
+  color: color(white);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  
+  &:hover:not(:disabled) {
+    background: darken-color(color(danger), 10%);
+  }
+}
+
+// Карточки
+@mixin card-base {
+  background: rgba(color(white), 0.95);
+  @include border-radius-large;
+  @include shadow(4);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+}
+
+// Адаптивность
+@mixin respond($breakpoint) {
+  @if $breakpoint == phone {
+    @media (max-width: 600px) { @content; }
+  } @else if $breakpoint == tablet {
+    @media (max-width: 768px) { @content; }
+  } @else if $breakpoint == desktop {
+    @media (min-width: 1200px) { @content; }
+  } @else if $breakpoint == large-desktop {
+    @media (min-width: 1800px) { @content; }
+  }
+}
+
+// Grid
+@mixin grid($columns: 2, $gap: 1rem) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+// Анимация пульсации
+@mixin pulse($color: color(primary)) {
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba($color, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba($color, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba($color, 0);
+    }
+  }
+  
+  animation: pulse 2s infinite;
+}
+
+// Функция для создания градиента ticker'а
+@mixin ticker-gradient($hue: 0, $saturation: 3%) {
+  $lg-stop: 50%;
+  background: linear-gradient(
+    hsl($hue, $saturation, 0%) 0 $lg-stop,
+    hsl($hue, $saturation, 20%) $lg-stop 100%
+  );
+}
+
+// Затемнение фона при наведении
+@mixin hover-darken($color, $amount: 10%) {
+  &:hover:not(:disabled) {
+    background: darken-color($color, $amount);
+  }
+}
+
+// Осветление фона при наведении
+@mixin hover-lighten($color, $amount: 10%) {
+  &:hover:not(:disabled) {
+    background: lighten-color($color, $amount);
+  }
+}
+
+// Миксин для анимаций
+@mixin animation($name, $duration: 1s, $timing: ease, $delay: 0s, $iteration: 1) {
+  animation: $name $duration $timing $delay $iteration;
+}
+
+// Миксин для создания плавного появления
+@mixin fade-in($duration: 0.3s) {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  animation: fadeIn $duration ease;
+}
